@@ -2,30 +2,73 @@
 
 import React, { useState } from 'react';
 
-export const TextEditor = () => {
-  // State for managing the text and history
-  const [text, setText] = useState('Abhinav');
-  const [history, setHistory] = useState([text]); // Array to store text history
-  const [historyPointer, setHistoryPointer] = useState(0); // Pointer to track undo/redo
+// Define a type for the style object
+interface TextStyle {
+  fontSize: string;
+  fontFamily: string;
+  fontWeight: 'normal' | 'bold';
+  fontStyle: 'normal' | 'italic';
+}
 
-  const [style, setStyle] = useState({
+export const TextEditor = () => {
+  // State for managing the text and style
+  const [text, setText] = useState<string>('Abhinav');
+  const [style, setStyle] = useState<TextStyle>({
     fontSize: '20px',
     fontFamily: 'Arial',
     fontWeight: 'normal',
     fontStyle: 'normal',
   });
-  const [position, setPosition] = useState({ x: 50, y: 50 });
-  const [dragging, setDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const [initialPos, setInitialPos] = useState({ x: 50, y: 50 });
+
+  const [position, setPosition] = useState<{ x: number; y: number }>({
+    x: 50,
+    y: 50,
+  });
+  const [dragging, setDragging] = useState<boolean>(false);
+  const [dragStart, setDragStart] = useState<{ x: number; y: number }>({
+    x: 0,
+    y: 0,
+  });
+  const [initialPos, setInitialPos] = useState<{ x: number; y: number }>({
+    x: 50,
+    y: 50,
+  });
+
+  // Combine text and style into one object to track in the history
+  interface HistoryEntry {
+    text: string;
+    style: TextStyle;
+  }
+
+  const [history, setHistory] = useState<HistoryEntry[]>([{ text, style }]);
+  const [historyPointer, setHistoryPointer] = useState<number>(0);
+
+  // Function to update the history
+  const updateHistory = (newText: string, newStyle: TextStyle) => {
+    const newHistory = [
+      ...history.slice(0, historyPointer + 1),
+      { text: newText, style: newStyle },
+    ];
+    setHistory(newHistory);
+    setHistoryPointer(newHistory.length - 1);
+  };
 
   // Text Change handler
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newText = e.target.value;
-    const newHistory = [...history.slice(0, historyPointer + 1), newText]; // Save history up to the current pointer, then add the new text state
-    setHistory(newHistory);
-    setHistoryPointer(newHistory.length - 1); // Move the pointer to the latest state
-    setText(newText); // Update the text dynamically
+    setText(newText);
+    updateHistory(newText, style); // Save the new text along with the current style to the history
+  };
+
+  // Style Change handler
+  const handleStyleChange = (
+    e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>,
+  ) => {
+    const { name, value } = e.target;
+    const newStyle = { ...style, [name]: value } as TextStyle; // Cast to TextStyle
+
+    setStyle(newStyle);
+    updateHistory(text, newStyle); // Save the current text along with the new style to the history
   };
 
   // Undo functionality
@@ -33,7 +76,8 @@ export const TextEditor = () => {
     if (historyPointer > 0) {
       const prevPointer = historyPointer - 1;
       setHistoryPointer(prevPointer);
-      setText(history[prevPointer]);
+      setText(history[prevPointer].text);
+      setStyle(history[prevPointer].style);
     }
   };
 
@@ -42,35 +86,16 @@ export const TextEditor = () => {
     if (historyPointer < history.length - 1) {
       const nextPointer = historyPointer + 1;
       setHistoryPointer(nextPointer);
-      setText(history[nextPointer]);
-    }
-  };
-
-  // Font Size, Font Family, and Style Change handlers
-  const handleStyleChange = (
-    e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>,
-  ) => {
-    const { name, value } = e.target;
-
-    if (name === 'fontSize') {
-      setStyle({
-        ...style,
-        fontSize: `${value}px`,
-      });
-    } else {
-      setStyle({
-        ...style,
-        [name]: value,
-      });
+      setText(history[nextPointer].text);
+      setStyle(history[nextPointer].style);
     }
   };
 
   // Add new text functionality
   const addNewText = () => {
-    const newHistory = [...history.slice(0, historyPointer + 1), 'New Text'];
-    setHistory(newHistory);
-    setHistoryPointer(newHistory.length - 1);
-    setText('New Text'); // Set new text
+    const newText = 'New Text';
+    setText(newText);
+    updateHistory(newText, style);
   };
 
   // Mouse event handlers for drag and drop of the text

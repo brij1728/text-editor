@@ -6,6 +6,7 @@ import { TextArea } from '../TextArea';
 import { TextStyles } from '../TextStyles';
 import { UndoRedo } from '../UndoRedo';
 
+// Define a type for the style object
 interface TextStyle {
   fontSize: string;
   fontFamily: string;
@@ -14,14 +15,14 @@ interface TextStyle {
 }
 
 export const TextEditor = () => {
-  const [text, setText] = useState<string>('Abhinav');
+  const [text, setText] = useState<string>('Abhinav'); // Initial text
   const [style, setStyle] = useState<TextStyle>({
     fontSize: '20px',
     fontFamily: 'Arial',
     fontWeight: 'normal',
     fontStyle: 'normal',
   });
-  const [editing, setEditing] = useState<boolean>(false);
+  const [editing, setEditing] = useState<boolean>(false); // Track if text is being edited
 
   const [history, setHistory] = useState<{ text: string; style: TextStyle }[]>([
     { text, style },
@@ -42,9 +43,11 @@ export const TextEditor = () => {
     y: 50,
   });
 
+  // Reference for the text area to calculate boundaries
   const textAreaRef = useRef<HTMLDivElement>(null);
-  const textRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLInputElement>(null); // Updated to use input element for focus
 
+  // Update history with new text and style
   const updateHistory = (newText: string, newStyle: TextStyle) => {
     const newHistory = [
       ...history.slice(0, currentIndex + 1),
@@ -54,6 +57,7 @@ export const TextEditor = () => {
     setCurrentIndex(newHistory.length - 1);
   };
 
+  // Mouse event handlers for drag and drop of the text
   const handleMouseDown = (e: React.MouseEvent) => {
     setDragging(true);
     setDragStart({ x: e.clientX, y: e.clientY });
@@ -87,27 +91,32 @@ export const TextEditor = () => {
     }
   };
 
+  // Add new text (replaces the current text)
   const addNewText = () => {
-    setText('New Text');
-    updateHistory('New Text', style);
+    setText('New Text'); // Replaces the current text with "New Text"
+    setEditing(true); // Automatically enter editing mode
+    updateHistory('New Text', style); // Update history with the new text
+    textRef.current?.focus(); // Focus the input for editing immediately
   };
 
+  // Enable editing mode when clicking on the text
   const handleTextClick = () => {
-    setEditing(true);
+    setEditing(true); // Switch to editing mode
   };
 
+  // Update the text as the user types
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setText(e.target.value);
+    setText(e.target.value); // Update the text dynamically
   };
 
+  // Save changes after editing and switch back to non-editing mode
   const handleBlur = () => {
-    setEditing(false);
-    updateHistory(text, style);
+    setEditing(false); // Switch back to non-editing mode
+    updateHistory(text, style); // Update history after editing
   };
 
   return (
     <div className='flex flex-col items-center justify-center space-y-8 p-8 w-full max-w-3xl mx-auto'>
-      <h1 className='text-3xl font-bold'>Text Editor</h1>
       {/* Undo/Redo buttons */}
       <UndoRedo
         history={history}
@@ -126,7 +135,7 @@ export const TextEditor = () => {
         handleMouseMove={handleMouseMove}
         handleMouseUp={handleMouseUp}
         textAreaRef={textAreaRef}
-        textRef={textRef}
+        textRef={textRef} // Pass the ref for focusing
         editing={editing}
         handleTextChange={handleTextChange}
         handleTextClick={handleTextClick}
@@ -143,7 +152,7 @@ export const TextEditor = () => {
 
       {/* Button to add new text */}
       <button
-        className='bg-green-500 text-white py-2 px-4 rounded w-full  mx-auto'
+        className='bg-green-500 text-white py-2 px-4 rounded w-full max-w-3xl mx-auto'
         onClick={addNewText}
       >
         Add New Text

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 
 // Define a type for the style object
 interface TextStyle {
@@ -12,7 +12,7 @@ interface TextStyle {
 
 export const TextEditor = () => {
   // State for managing the text and style
-  const [text, setText] = useState<string>('Abhinav');
+  const [text] = useState<string>('Abhinav');
   const [style, setStyle] = useState<TextStyle>({
     fontSize: '20px',
     fontFamily: 'Arial',
@@ -34,75 +34,15 @@ export const TextEditor = () => {
     y: 50,
   });
 
-  // Combine text and style into one object to track in the history
-  interface HistoryEntry {
-    text: string;
-    style: TextStyle;
-  }
-
-  const [history, setHistory] = useState<HistoryEntry[]>([{ text, style }]);
-  const [historyPointer, setHistoryPointer] = useState<number>(0);
-
-  // Function to update the history
-  const updateHistory = (newText: string, newStyle: TextStyle) => {
-    const newHistory = [
-      ...history.slice(0, historyPointer + 1),
-      { text: newText, style: newStyle },
-    ];
-    setHistory(newHistory);
-    setHistoryPointer(newHistory.length - 1);
-  };
-
-  // Text Change handler
-  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newText = e.target.value;
-    setText(newText);
-    updateHistory(newText, style); // Save the new text along with the current style to the history
-  };
-
-  // Style Change handler
-  const handleStyleChange = (
-    e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>,
-  ) => {
-    const { name, value } = e.target;
-    const newStyle = { ...style, [name]: value } as TextStyle; // Cast to TextStyle
-
-    setStyle(newStyle);
-    updateHistory(text, newStyle); // Save the current text along with the new style to the history
-  };
-
-  // Undo functionality
-  const handleUndo = () => {
-    if (historyPointer > 0) {
-      const prevPointer = historyPointer - 1;
-      setHistoryPointer(prevPointer);
-      setText(history[prevPointer].text);
-      setStyle(history[prevPointer].style);
-    }
-  };
-
-  // Redo functionality
-  const handleRedo = () => {
-    if (historyPointer < history.length - 1) {
-      const nextPointer = historyPointer + 1;
-      setHistoryPointer(nextPointer);
-      setText(history[nextPointer].text);
-      setStyle(history[nextPointer].style);
-    }
-  };
-
-  // Add new text functionality
-  const addNewText = () => {
-    const newText = 'New Text';
-    setText(newText);
-    updateHistory(newText, style);
-  };
+  // Reference for the text area to calculate boundaries
+  const textAreaRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLDivElement>(null);
 
   // Mouse event handlers for drag and drop of the text
   const handleMouseDown = (e: React.MouseEvent) => {
     setDragging(true);
-    setDragStart({ x: e.clientX, y: e.clientY }); // Store the initial mouse click position
-    setInitialPos({ x: position.x, y: position.y }); // Store the initial text position
+    setDragStart({ x: e.clientX, y: e.clientY });
+    setInitialPos({ x: position.x, y: position.y });
   };
 
   const handleMouseUp = () => {
@@ -110,11 +50,51 @@ export const TextEditor = () => {
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (dragging) {
-      // Calculate the new position based on the mouse movement and the initial positions
-      const newX = initialPos.x + (e.clientX - dragStart.x);
-      const newY = initialPos.y + (e.clientY - dragStart.y);
-      setPosition({ x: newX, y: newY });
+    if (dragging && textAreaRef.current && textRef.current) {
+      const textAreaRect = textAreaRef.current.getBoundingClientRect();
+      const textRect = textRef.current.getBoundingClientRect();
+
+      const deltaX = e.clientX - dragStart.x;
+      const deltaY = e.clientY - dragStart.y;
+
+      const newX = initialPos.x + deltaX;
+      const newY = initialPos.y + deltaY;
+
+      // Calculate the boundaries for both X and Y axes
+      const minX = 0;
+      const minY = 0;
+      const maxX = textAreaRect.width - textRect.width; // Allow full movement along the X axis
+      const maxY = textAreaRect.height - textRect.height; // Allow full movement along the Y axis
+
+      // Restrict the new position within the boundaries
+      const boundedX = Math.max(minX, Math.min(newX, maxX)); // Restrict left and right movement
+      const boundedY = Math.max(minY, Math.min(newY, maxY)); // Restrict top and bottom movement
+
+      setPosition({ x: boundedX, y: boundedY });
+    }
+  };
+
+  // Style Change handler with explicit type casting
+  const handleStyleChange = (
+    e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>,
+  ) => {
+    const { name, value } = e.target;
+
+    if (name === 'fontWeight') {
+      setStyle(prev => ({
+        ...prev,
+        fontWeight: value as 'normal' | 'bold', // Explicitly cast to the allowed string literals
+      }));
+    } else if (name === 'fontStyle') {
+      setStyle(prev => ({
+        ...prev,
+        fontStyle: value as 'normal' | 'italic', // Explicitly cast to the allowed string literals
+      }));
+    } else {
+      setStyle(prev => ({
+        ...prev,
+        [name]: value,
+      }));
     }
   };
 
@@ -122,16 +102,10 @@ export const TextEditor = () => {
     <div className='flex flex-col items-center justify-center space-y-8 p-8'>
       {/* Undo/Redo buttons */}
       <div className='flex space-x-4'>
-        <button
-          onClick={handleUndo}
-          className='bg-blue-500 text-white py-2 px-4 rounded'
-        >
+        <button className='bg-blue-500 text-white py-2 px-4 rounded'>
           Undo
         </button>
-        <button
-          onClick={handleRedo}
-          className='bg-blue-500 text-white py-2 px-4 rounded'
-        >
+        <button className='bg-blue-500 text-white py-2 px-4 rounded'>
           Redo
         </button>
       </div>
@@ -141,12 +115,10 @@ export const TextEditor = () => {
         className='border-2 border-green-500 w-80 h-80 relative'
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
+        ref={textAreaRef}
       >
-        {/* Draggable Input Field inside the canvas */}
-        <input
-          type='text'
-          value={text}
-          onChange={handleTextChange} // Update text as the user types
+        {/* Draggable Text Field inside the canvas */}
+        <div
           className='absolute text-center bg-transparent border-none outline-none'
           style={{
             left: `${position.x}px`,
@@ -158,7 +130,10 @@ export const TextEditor = () => {
             cursor: dragging ? 'grabbing' : 'grab', // Visual feedback for dragging
           }}
           onMouseDown={handleMouseDown}
-        />
+          ref={textRef}
+        >
+          {text}
+        </div>
       </div>
 
       {/* Font, Size, Style controls */}
@@ -216,10 +191,7 @@ export const TextEditor = () => {
           </select>
         </label>
 
-        <button
-          onClick={addNewText}
-          className='bg-green-500 text-white py-2 px-4 rounded w-full'
-        >
+        <button className='bg-green-500 text-white py-2 px-4 rounded w-full'>
           Add Text
         </button>
       </div>

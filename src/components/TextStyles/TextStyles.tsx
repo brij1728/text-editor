@@ -1,6 +1,5 @@
 import React from 'react';
 
-// Define a more precise type for the style object
 interface TextStyle {
   fontSize: string;
   fontFamily: string;
@@ -42,7 +41,7 @@ export const TextStyles: React.FC<ControlsProps> = ({
   };
 
   return (
-    <div className='flex flex-col space-y-4 w-80'>
+    <div className='flex flex-col space-y-4 w-full'>
       <label className='flex items-center space-x-2'>
         Font Size:
         <input
@@ -95,10 +94,6 @@ export const TextStyles: React.FC<ControlsProps> = ({
           <option value='italic'>Italic</option>
         </select>
       </label>
-
-      <button className='bg-green-500 text-white py-2 px-4 rounded w-full'>
-        Add Text
-      </button>
     </div>
   );
 };

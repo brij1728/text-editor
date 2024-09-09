@@ -6,7 +6,6 @@ import { TextArea } from '../TextArea';
 import { TextStyles } from '../TextStyles';
 import { UndoRedo } from '../UndoRedo';
 
-// Define a type for the style object
 interface TextStyle {
   fontSize: string;
   fontFamily: string;
@@ -15,7 +14,6 @@ interface TextStyle {
 }
 
 export const TextEditor = () => {
-  // State for managing the text and style
   const [text, setText] = useState<string>('Abhinav');
   const [style, setStyle] = useState<TextStyle>({
     fontSize: '20px',
@@ -23,8 +21,8 @@ export const TextEditor = () => {
     fontWeight: 'normal',
     fontStyle: 'normal',
   });
+  const [editing, setEditing] = useState<boolean>(false);
 
-  // History for undo/redo
   const [history, setHistory] = useState<{ text: string; style: TextStyle }[]>([
     { text, style },
   ]);
@@ -44,13 +42,9 @@ export const TextEditor = () => {
     y: 50,
   });
 
-  // Reference for the text area to calculate boundaries
   const textAreaRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
 
-  // Handle undo and redo in UndoRedo component
-
-  // Update history with new text and style
   const updateHistory = (newText: string, newStyle: TextStyle) => {
     const newHistory = [
       ...history.slice(0, currentIndex + 1),
@@ -60,7 +54,6 @@ export const TextEditor = () => {
     setCurrentIndex(newHistory.length - 1);
   };
 
-  // Mouse event handlers for drag and drop of the text
   const handleMouseDown = (e: React.MouseEvent) => {
     setDragging(true);
     setDragStart({ x: e.clientX, y: e.clientY });
@@ -82,13 +75,11 @@ export const TextEditor = () => {
       const newX = initialPos.x + deltaX;
       const newY = initialPos.y + deltaY;
 
-      // Calculate the boundaries for both X and Y axes
       const minX = 0;
       const minY = 0;
       const maxX = textAreaRect.width - textRect.width;
       const maxY = textAreaRect.height - textRect.height;
 
-      // Restrict the new position within the boundaries
       const boundedX = Math.max(minX, Math.min(newX, maxX));
       const boundedY = Math.max(minY, Math.min(newY, maxY));
 
@@ -96,8 +87,26 @@ export const TextEditor = () => {
     }
   };
 
+  const addNewText = () => {
+    setText('New Text');
+    updateHistory('New Text', style);
+  };
+
+  const handleTextClick = () => {
+    setEditing(true);
+  };
+
+  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setText(e.target.value);
+  };
+
+  const handleBlur = () => {
+    setEditing(false);
+    updateHistory(text, style);
+  };
+
   return (
-    <div className='flex flex-col items-center justify-center space-y-8 p-8'>
+    <div className='flex flex-col items-center justify-center space-y-8 p-8 w-full max-w-3xl mx-auto'>
       {/* Undo/Redo buttons */}
       <UndoRedo
         history={history}
@@ -117,6 +126,10 @@ export const TextEditor = () => {
         handleMouseUp={handleMouseUp}
         textAreaRef={textAreaRef}
         textRef={textRef}
+        editing={editing}
+        handleTextChange={handleTextChange}
+        handleTextClick={handleTextClick}
+        handleBlur={handleBlur}
       />
 
       {/* Font, Size, Style controls */}
@@ -126,6 +139,14 @@ export const TextEditor = () => {
         updateHistory={updateHistory}
         text={text}
       />
+
+      {/* Button to add new text */}
+      <button
+        className='bg-green-500 text-white py-2 px-4 rounded w-full  mx-auto'
+        onClick={addNewText}
+      >
+        Add New Text
+      </button>
     </div>
   );
 };

@@ -1,6 +1,5 @@
 import React from 'react';
 
-// Define the TextStyle type for style consistency
 interface TextStyle {
   fontSize: string;
   fontFamily: string;
@@ -9,9 +8,9 @@ interface TextStyle {
 }
 
 interface UndoRedoProps {
-  history: { text: string; style: TextStyle }[]; // Updated to use TextStyle
+  history: { text: string; style: TextStyle }[];
   setText: React.Dispatch<React.SetStateAction<string>>;
-  setStyle: React.Dispatch<React.SetStateAction<TextStyle>>; // Updated to use TextStyle
+  setStyle: React.Dispatch<React.SetStateAction<TextStyle>>;
   currentIndex: number;
   setCurrentIndex: React.Dispatch<React.SetStateAction<number>>;
 }

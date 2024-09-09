@@ -2,6 +2,10 @@
 
 import React, { useRef, useState } from 'react';
 
+import { TextArea } from '../TextArea';
+import { TextStyles } from '../TextStyles';
+import { UndoRedo } from '../UndoRedo';
+
 // Define a type for the style object
 interface TextStyle {
   fontSize: string;
@@ -44,27 +48,9 @@ export const TextEditor = () => {
   const textAreaRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
 
-  // Handle undo
-  const handleUndo = () => {
-    if (currentIndex > 0) {
-      const prevIndex = currentIndex - 1;
-      setText(history[prevIndex].text);
-      setStyle(history[prevIndex].style);
-      setCurrentIndex(prevIndex);
-    }
-  };
+  // Handle undo and redo in UndoRedo component
 
-  // Handle redo
-  const handleRedo = () => {
-    if (currentIndex < history.length - 1) {
-      const nextIndex = currentIndex + 1;
-      setText(history[nextIndex].text);
-      setStyle(history[nextIndex].style);
-      setCurrentIndex(nextIndex);
-    }
-  };
-
-  // Record changes in history for undo/redo
+  // Update history with new text and style
   const updateHistory = (newText: string, newStyle: TextStyle) => {
     const newHistory = [
       ...history.slice(0, currentIndex + 1),
@@ -110,137 +96,36 @@ export const TextEditor = () => {
     }
   };
 
-  // Text Change handler
-  //   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //     const newText = e.target.value;
-  //     setText(newText);
-  //     updateHistory(newText, style);   // Update history with the new text and current style
-  //   };
-
-  // Style Change handler with explicit type casting
-  const handleStyleChange = (
-    e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>,
-  ) => {
-    const { name, value } = e.target;
-    const newStyle = { ...style };
-
-    if (name === 'fontWeight') {
-      newStyle.fontWeight = value as 'normal' | 'bold'; // Explicitly cast to the allowed string literals
-    } else if (name === 'fontStyle') {
-      newStyle.fontStyle = value as 'normal' | 'italic'; // Explicitly cast to the allowed string literals
-    } else if (name === 'fontSize') {
-      newStyle.fontSize = `${value}px`; // Update font size
-    } else if (name === 'fontFamily') {
-      newStyle.fontFamily = value; // Update font family
-    }
-
-    setStyle(newStyle);
-    updateHistory(text, newStyle); // Update history with the new style and current text
-  };
-
   return (
     <div className='flex flex-col items-center justify-center space-y-8 p-8'>
       {/* Undo/Redo buttons */}
-      <div className='flex space-x-4'>
-        <button
-          className='bg-blue-500 text-white py-2 px-4 rounded'
-          onClick={handleUndo}
-        >
-          Undo
-        </button>
-        <button
-          className='bg-blue-500 text-white py-2 px-4 rounded'
-          onClick={handleRedo}
-        >
-          Redo
-        </button>
-      </div>
+      <UndoRedo
+        history={history}
+        setText={setText}
+        setStyle={setStyle}
+        currentIndex={currentIndex}
+        setCurrentIndex={setCurrentIndex}
+      />
 
-      {/* Fixed Text Area (Canvas) */}
-      <div
-        className='border-2 border-green-500 w-80 h-80 relative'
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        ref={textAreaRef}
-      >
-        {/* Draggable Text Field inside the canvas */}
-        <div
-          className='absolute text-center bg-transparent border-none outline-none'
-          style={{
-            left: `${position.x}px`,
-            top: `${position.y}px`,
-            fontSize: style.fontSize,
-            fontFamily: style.fontFamily,
-            fontWeight: style.fontWeight,
-            fontStyle: style.fontStyle,
-            cursor: dragging ? 'grabbing' : 'grab', // Visual feedback for dragging
-          }}
-          onMouseDown={handleMouseDown}
-          ref={textRef}
-        >
-          {text}
-        </div>
-      </div>
+      {/* Text Area */}
+      <TextArea
+        text={text}
+        style={style}
+        position={position}
+        handleMouseDown={handleMouseDown}
+        handleMouseMove={handleMouseMove}
+        handleMouseUp={handleMouseUp}
+        textAreaRef={textAreaRef}
+        textRef={textRef}
+      />
 
       {/* Font, Size, Style controls */}
-      <div className='flex flex-col space-y-4 w-80'>
-        <label className='flex items-center space-x-2'>
-          Font Size:
-          <input
-            type='range'
-            name='fontSize'
-            min='10'
-            max='50'
-            value={parseInt(style.fontSize, 10)}
-            onChange={handleStyleChange}
-            className='w-full'
-          />
-        </label>
-
-        <label className='flex items-center space-x-2'>
-          Font Family:
-          <select
-            name='fontFamily'
-            value={style.fontFamily}
-            onChange={handleStyleChange}
-            className='w-full'
-          >
-            <option value='Arial'>Arial</option>
-            <option value='Georgia'>Georgia</option>
-            <option value='Courier New'>Courier New</option>
-          </select>
-        </label>
-
-        <label className='flex items-center space-x-2'>
-          Font Weight:
-          <select
-            name='fontWeight'
-            value={style.fontWeight}
-            onChange={handleStyleChange}
-            className='w-full'
-          >
-            <option value='normal'>Normal</option>
-            <option value='bold'>Bold</option>
-          </select>
-        </label>
-
-        <label className='flex items-center space-x-2'>
-          Font Style:
-          <select
-            name='fontStyle'
-            value={style.fontStyle}
-            onChange={handleStyleChange}
-            className='w-full'
-          >
-            <option value='normal'>Normal</option>
-            <option value='italic'>Italic</option>
-          </select>
-        </label>
-
-        <button className='bg-green-500 text-white py-2 px-4 rounded w-full'>
-          Add Text
-        </button>
-      </div>
+      <TextStyles
+        style={style}
+        setStyle={setStyle}
+        updateHistory={updateHistory}
+        text={text}
+      />
     </div>
   );
 };

@@ -107,6 +107,7 @@ export const TextEditor = () => {
 
   return (
     <div className='flex flex-col items-center justify-center space-y-8 p-8 w-full max-w-3xl mx-auto'>
+      <h1 className='text-3xl font-bold'>Text Editor</h1>
       {/* Undo/Redo buttons */}
       <UndoRedo
         history={history}

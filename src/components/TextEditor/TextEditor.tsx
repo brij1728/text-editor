@@ -12,6 +12,7 @@ interface TextStyle {
   fontWeight: 'normal' | 'bold';
   fontStyle: 'normal' | 'italic';
   textDecoration: 'none' | 'underline';
+  textAlign: 'left' | 'center' | 'right';
 }
 
 export const TextEditor = () => {
@@ -22,6 +23,7 @@ export const TextEditor = () => {
     fontWeight: 'normal',
     fontStyle: 'normal',
     textDecoration: 'none',
+    textAlign: 'left',
   });
   const [editing, setEditing] = useState<boolean>(false);
 

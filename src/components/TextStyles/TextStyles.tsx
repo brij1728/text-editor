@@ -1,7 +1,14 @@
+import {
+  AiOutlineAlignCenter,
+  AiOutlineAlignLeft,
+  AiOutlineAlignRight,
+} from 'react-icons/ai';
 import { BsTypeBold, BsTypeItalic, BsTypeUnderline } from 'react-icons/bs'; // Icons for Bold, Italic, Underline
 import { HiOutlineMinus, HiOutlinePlus } from 'react-icons/hi'; // Icons for Plus and Minus
 
 import React from 'react';
+
+// Icons for Text Alignment
 
 interface TextStyle {
   fontSize: string;
@@ -9,6 +16,7 @@ interface TextStyle {
   fontWeight: 'normal' | 'bold';
   fontStyle: 'normal' | 'italic';
   textDecoration: 'none' | 'underline';
+  textAlign: 'left' | 'center' | 'right'; // Adding textAlign property
 }
 
 interface ControlsProps {
@@ -48,22 +56,45 @@ export const TextStyles: React.FC<ControlsProps> = ({
 
   return (
     <div className='flex flex-col md:flex-row w-full p-4 bg-slate-50 border border-gray-300 rounded-md gap-4 text-sm md:text-xl'>
-      {/* Font Family Selector */}
-      <div className='flex w-full md:w-2/5 flex-wrap items-center justify-center space-x-4'>
-        <select
-          name='fontFamily'
-          value={style.fontFamily}
-          onChange={handleStyleChange}
-          className='p-2 border border-gray-300 rounded-md w-full md:w-auto focus:outline-none focus:ring-2 focus:ring-blue-500'
-        >
-          <option value='Arial'>Arial</option>
-          <option value='Georgia'>Georgia</option>
-          <option value='Courier New'>Courier New</option>
-        </select>
+      <div className='flex  w-full items-center justify-between gap-2 md:gap-4'>
+        {/* Font Family Selector */}
+        <div className='flex flex-wrap items-center justify-center space-x-4'>
+          <select
+            name='fontFamily'
+            value={style.fontFamily}
+            onChange={handleStyleChange}
+            className='p-2 border border-gray-300 rounded-md w-full md:w-auto focus:outline-none focus:ring-2 focus:ring-blue-500'
+          >
+            <option value='Arial'>Arial</option>
+            <option value='Georgia'>Georgia</option>
+            <option value='Courier New'>Courier New</option>
+          </select>
+        </div>
+        {/* Text Alignment: Left, Center, Right */}
+        <div className='flex items-center p-1 md:p-2 bg-white rounded-lg border border-gray-300 shadow-md gap-1 md:gap-2'>
+          <button
+            onClick={() => handleButtonClick('textAlign', 'left')}
+            className={`p-1 md:p-2 ${style.textAlign === 'left' ? 'bg-gray-300' : 'bg-gray-100'} hover:bg-gray-200 rounded-md`}
+          >
+            <AiOutlineAlignLeft />
+          </button>
+          <button
+            onClick={() => handleButtonClick('textAlign', 'center')}
+            className={`p-1 md:p-2 ${style.textAlign === 'center' ? 'bg-gray-300' : 'bg-gray-100'} hover:bg-gray-200 rounded-md`}
+          >
+            <AiOutlineAlignCenter />
+          </button>
+          <button
+            onClick={() => handleButtonClick('textAlign', 'right')}
+            className={`p-1 md:p-2 ${style.textAlign === 'right' ? 'bg-gray-300' : 'bg-gray-100'} hover:bg-gray-200 rounded-md`}
+          >
+            <AiOutlineAlignRight />
+          </button>
+        </div>
       </div>
 
       {/* Font Size Controls */}
-      <div className='flex w-full  items-center justify-between gap-2 md:gap-4'>
+      <div className='flex  w-full items-center justify-between gap-2 md:gap-4'>
         <div className='flex items-center justify-center space-x-2 p-1 md:p-2 bg-white rounded-lg border border-gray-300 shadow-md'>
           <button
             onClick={() => handleFontSizeChange(false)}
@@ -76,7 +107,7 @@ export const TextStyles: React.FC<ControlsProps> = ({
             name='fontSize'
             value={parseInt(style.fontSize, 10)}
             onChange={handleStyleChange}
-            className='w-12 md:w-16 mx-auto  text-center  focus:outline-none focus:ring-1 md:focus:ring-2 focus:ring-blue-500'
+            className='w-12 md:w-16 mx-auto text-center focus:outline-none focus:ring-1 md:focus:ring-2 focus:ring-blue-500'
           />
           <button
             onClick={() => handleFontSizeChange(true)}
@@ -87,7 +118,7 @@ export const TextStyles: React.FC<ControlsProps> = ({
         </div>
 
         {/* Text Styles: Bold, Italic, Underline */}
-        <div className='flex items-center  p-1 md:p-2 bg-white rounded-lg border border-gray-300 shadow-md gap-1 md:gap-2'>
+        <div className='flex items-center p-1 md:p-2 bg-white rounded-lg border border-gray-300 shadow-md gap-1 md:gap-2'>
           <button
             onClick={() =>
               handleButtonClick(

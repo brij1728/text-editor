@@ -17,6 +17,7 @@ interface TextStyle {
 
 export const TextEditor = () => {
   const [text, setText] = useState<string>('Abhinav');
+
   const [style, setStyle] = useState<TextStyle>({
     fontSize: '20px',
     fontFamily: 'Arial',
@@ -25,6 +26,7 @@ export const TextEditor = () => {
     textDecoration: 'none',
     textAlign: 'left',
   });
+
   const [editing, setEditing] = useState<boolean>(false);
 
   const [history, setHistory] = useState<{ text: string; style: TextStyle }[]>([

@@ -1,3 +1,4 @@
+// TextArea.tsx
 import React from 'react';
 
 interface TextAreaProps {
@@ -8,6 +9,7 @@ interface TextAreaProps {
     fontWeight: 'normal' | 'bold';
     fontStyle: 'normal' | 'italic';
     textDecoration: 'none' | 'underline';
+    textAlign: 'left' | 'center' | 'right';
   };
   position: { x: number; y: number };
   handleMouseDown: (e: React.MouseEvent) => void;
@@ -41,6 +43,7 @@ export const TextArea: React.FC<TextAreaProps> = ({
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       ref={textAreaRef}
+      style={{ position: 'relative', overflow: 'hidden' }} // Ensure overflow is hidden
     >
       <div
         className='absolute'
@@ -52,7 +55,10 @@ export const TextArea: React.FC<TextAreaProps> = ({
           fontWeight: style.fontWeight,
           fontStyle: style.fontStyle,
           textDecoration: style.textDecoration,
+          textAlign: style.textAlign,
           cursor: editing ? 'text' : 'grab',
+          position: 'absolute', // Ensure the position is absolute
+          whiteSpace: 'nowrap', // Prevent text from wrapping
         }}
         onMouseDown={!editing ? handleMouseDown : undefined}
         ref={textRef}

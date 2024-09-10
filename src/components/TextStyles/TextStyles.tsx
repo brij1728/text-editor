@@ -3,12 +3,10 @@ import {
   AiOutlineAlignLeft,
   AiOutlineAlignRight,
 } from 'react-icons/ai';
-import { BsTypeBold, BsTypeItalic, BsTypeUnderline } from 'react-icons/bs'; // Icons for Bold, Italic, Underline
-import { HiOutlineMinus, HiOutlinePlus } from 'react-icons/hi'; // Icons for Plus and Minus
+import { BsTypeBold, BsTypeItalic, BsTypeUnderline } from 'react-icons/bs';
+import { HiOutlineMinus, HiOutlinePlus } from 'react-icons/hi';
 
 import React from 'react';
-
-// Icons for Text Alignment
 
 interface TextStyle {
   fontSize: string;
@@ -16,7 +14,7 @@ interface TextStyle {
   fontWeight: 'normal' | 'bold';
   fontStyle: 'normal' | 'italic';
   textDecoration: 'none' | 'underline';
-  textAlign: 'left' | 'center' | 'right'; // Adding textAlign property
+  textAlign: 'left' | 'center' | 'right';
 }
 
 interface ControlsProps {

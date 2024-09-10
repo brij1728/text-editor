@@ -58,7 +58,7 @@ export const TextArea: React.FC<TextAreaProps> = ({
           textAlign: style.textAlign,
           cursor: editing ? 'text' : 'grab',
           position: 'absolute', // Ensure the position is absolute
-          whiteSpace: 'nowrap', // Prevent text from wrapping
+          whiteSpace: 'pre-wrap', // Prevent text from wrapping
         }}
         onMouseDown={!editing ? handleMouseDown : undefined}
         ref={textRef}
@@ -74,6 +74,8 @@ export const TextArea: React.FC<TextAreaProps> = ({
             style={{
               fontSize: style.fontSize,
               fontFamily: style.fontFamily,
+              whiteSpace: 'pre-wrap',
+              overflow: 'hidden',
             }}
           />
         ) : (

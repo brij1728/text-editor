@@ -6,23 +6,24 @@ import { TextArea } from '../TextArea';
 import { TextStyles } from '../TextStyles';
 import { UndoRedo } from '../UndoRedo';
 
-// Define a type for the style object
 interface TextStyle {
   fontSize: string;
   fontFamily: string;
   fontWeight: 'normal' | 'bold';
   fontStyle: 'normal' | 'italic';
+  textDecoration: 'none' | 'underline';
 }
 
 export const TextEditor = () => {
-  const [text, setText] = useState<string>('Abhinav'); // Initial text
+  const [text, setText] = useState<string>('Abhinav');
   const [style, setStyle] = useState<TextStyle>({
     fontSize: '20px',
     fontFamily: 'Arial',
     fontWeight: 'normal',
     fontStyle: 'normal',
+    textDecoration: 'none',
   });
-  const [editing, setEditing] = useState<boolean>(false); // Track if text is being edited
+  const [editing, setEditing] = useState<boolean>(false);
 
   const [history, setHistory] = useState<{ text: string; style: TextStyle }[]>([
     { text, style },
@@ -43,11 +44,9 @@ export const TextEditor = () => {
     y: 50,
   });
 
-  // Reference for the text area to calculate boundaries
   const textAreaRef = useRef<HTMLDivElement>(null);
-  const textRef = useRef<HTMLInputElement>(null); // Updated to use input element for focus
+  const textRef = useRef<HTMLInputElement>(null);
 
-  // Update history with new text and style
   const updateHistory = (newText: string, newStyle: TextStyle) => {
     const newHistory = [
       ...history.slice(0, currentIndex + 1),
@@ -57,7 +56,6 @@ export const TextEditor = () => {
     setCurrentIndex(newHistory.length - 1);
   };
 
-  // Mouse event handlers for drag and drop of the text
   const handleMouseDown = (e: React.MouseEvent) => {
     setDragging(true);
     setDragStart({ x: e.clientX, y: e.clientY });
@@ -91,34 +89,29 @@ export const TextEditor = () => {
     }
   };
 
-  // Add new text (replaces the current text)
   const addNewText = () => {
-    setText('New Text'); // Replaces the current text with "New Text"
-    setEditing(true); // Automatically enter editing mode
-    updateHistory('New Text', style); // Update history with the new text
-    textRef.current?.focus(); // Focus the input for editing immediately
+    setText('New Text');
+    setEditing(true);
+    updateHistory('New Text', style);
+    textRef.current?.focus();
   };
 
-  // Enable editing mode when clicking on the text
   const handleTextClick = () => {
-    setEditing(true); // Switch to editing mode
+    setEditing(true);
   };
 
-  // Update the text as the user types
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setText(e.target.value); // Update the text dynamically
+    setText(e.target.value);
   };
 
-  // Save changes after editing and switch back to non-editing mode
   const handleBlur = () => {
-    setEditing(false); // Switch back to non-editing mode
-    updateHistory(text, style); // Update history after editing
+    setEditing(false);
+    updateHistory(text, style);
   };
 
   return (
     <div className='flex flex-col items-center justify-center space-y-8 p-8 w-full max-w-3xl mx-auto'>
       <h1 className='text-3xl font-bold'>Text Editor</h1>
-      {/* Undo/Redo buttons */}
       <UndoRedo
         history={history}
         setText={setText}
@@ -126,8 +119,6 @@ export const TextEditor = () => {
         currentIndex={currentIndex}
         setCurrentIndex={setCurrentIndex}
       />
-
-      {/* Text Area */}
       <TextArea
         text={text}
         style={style}
@@ -136,22 +127,18 @@ export const TextEditor = () => {
         handleMouseMove={handleMouseMove}
         handleMouseUp={handleMouseUp}
         textAreaRef={textAreaRef}
-        textRef={textRef} // Pass the ref for focusing
+        textRef={textRef}
         editing={editing}
         handleTextChange={handleTextChange}
         handleTextClick={handleTextClick}
         handleBlur={handleBlur}
       />
-
-      {/* Font, Size, Style controls */}
       <TextStyles
         style={style}
         setStyle={setStyle}
         updateHistory={updateHistory}
         text={text}
       />
-
-      {/* Button to add new text */}
       <button
         className='bg-green-500 text-white py-2 px-4 rounded w-full max-w-3xl mx-auto'
         onClick={addNewText}

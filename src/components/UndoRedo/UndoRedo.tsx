@@ -5,6 +5,7 @@ interface TextStyle {
   fontFamily: string;
   fontWeight: 'normal' | 'bold';
   fontStyle: 'normal' | 'italic';
+  textDecoration: 'none' | 'underline';
 }
 
 interface UndoRedoProps {
